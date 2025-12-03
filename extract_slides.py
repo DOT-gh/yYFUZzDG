@@ -5,6 +5,7 @@ Extract slides from Genspark HTML file and create a clean HTML for PDF export.
 
 import re
 import html
+import sys
 from pathlib import Path
 
 def extract_slides(input_file, output_file):
@@ -15,7 +16,6 @@ def extract_slides(input_file, output_file):
         content = f.read()
     
     # Extract @font-face declarations
-    font_faces = []
     font_face_pattern = r'@font-face\{[^}]+\}'
     font_faces = re.findall(font_face_pattern, content)
     
@@ -56,8 +56,10 @@ def extract_slides(input_file, output_file):
         # Find the closing div for the slide-container
         # We need to find the matching closing tag
         # Start from the container_start and count opening/closing divs
-        div_count = 0
+        div_count = 1  # Start at 1 to account for the opening slide-container div
         pos = container_start
+        # Skip past the opening tag
+        pos = slide_html.find('>', container_start) + 1
         container_end = -1
         
         while pos < len(slide_html):
@@ -190,7 +192,7 @@ if __name__ == '__main__':
     
     if not input_file.exists():
         print(f"Error: {input_file} not found")
-        exit(1)
+        sys.exit(1)
     
     extract_slides(input_file, output_file)
     print("Done!")
